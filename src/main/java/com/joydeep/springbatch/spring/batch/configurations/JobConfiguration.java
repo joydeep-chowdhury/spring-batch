@@ -47,28 +47,22 @@ public class JobConfiguration {
         this.jobRepository = jobRepository;
     }
 
-    @Qualifier(value = "testjob")
+    @Qualifier(value = "test2job")
     @Bean
     public Job job() throws Exception {
-        return jobBuilderFactory.get("testjob")
-                                .start(firstStep())
+        return jobBuilderFactory.get("test2job")
+                                .start(test2firstStep())
                                 .build();
     }
 
-    @Bean(name = "firststep")
-    public Step firstStep() throws Exception {
-        return stepBuilderFactory.get("firststep")
+    @Bean(name = "test2firststep")
+    public Step test2firstStep() throws Exception {
+        return stepBuilderFactory.get("test2firststep")
                                  .<Employee,EmployeeDTO> chunk(10)
                                  .reader(employeeDBReader())
                                  .processor(employeeProcessor)
                                  .writer(employeeFileWriter())
                                  .build();
-    }
-
-    @Bean
-    @StepScope
-    public Resource inputFileResource(@Value("#{jobParameters[fileName]}") final String fileName) throws Exception {
-        return new ClassPathResource(fileName);
     }
 
     @Bean

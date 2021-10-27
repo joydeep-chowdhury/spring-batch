@@ -14,6 +14,12 @@ public class EmployeeProcessor implements ItemProcessor<EmployeeDTO, Employee> {
 
     @Override
     public Employee process(EmployeeDTO employeeDTO) throws Exception {
+        if(!isValid(employeeDTO)){
+            logger.error("Invalid employee very old {}",employeeDTO);
+
+            return null;
+        }
+
         Employee employee = new Employee();
         employee.setEmployeeId(employeeDTO.getEmployeeId());
         employee.setFirstName(employeeDTO.getFirstName());
@@ -22,5 +28,9 @@ public class EmployeeProcessor implements ItemProcessor<EmployeeDTO, Employee> {
         employee.setAge(employeeDTO.getAge());
         logger.info("Processing employee {}",employee);
         return employee;
+    }
+
+    private boolean isValid(EmployeeDTO employeeDTO){
+        return !(employeeDTO.getAge()>60);
     }
 }

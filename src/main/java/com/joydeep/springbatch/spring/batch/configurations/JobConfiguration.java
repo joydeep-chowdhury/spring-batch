@@ -4,6 +4,7 @@ import com.joydeep.springbatch.spring.batch.dtos.EmployeeDTO;
 import com.joydeep.springbatch.spring.batch.mappers.EmployeeFileRowMapper;
 import com.joydeep.springbatch.spring.batch.models.Employee;
 import com.joydeep.springbatch.spring.batch.services.processors.EmployeeProcessor;
+import com.joydeep.springbatch.spring.batch.services.writers.EmployeeDBWriter;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -12,8 +13,6 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
-import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
@@ -32,16 +31,16 @@ public class JobConfiguration {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final EmployeeProcessor employeeProcessor;
-    private final DataSource dataSource;
     private final JobRepository jobRepository;
+    private final EmployeeDBWriter employeeDBWriter;
 
     public JobConfiguration(JobBuilderFactory jobBuilderFactory, StepBuilderFactory stepBuilderFactory, EmployeeProcessor employeeProcessor, DataSource dataSource,
-            JobRepository jobRepository) {
+                            JobRepository jobRepository, EmployeeDBWriter employeeDBWriter) {
         this.jobBuilderFactory = jobBuilderFactory;
         this.stepBuilderFactory = stepBuilderFactory;
         this.employeeProcessor = employeeProcessor;
-        this.dataSource = dataSource;
         this.jobRepository = jobRepository;
+        this.employeeDBWriter = employeeDBWriter;
     }
 
     @Qualifier(value = "testjob")
@@ -58,7 +57,7 @@ public class JobConfiguration {
                                  .<EmployeeDTO, Employee> chunk(5)
                                  .reader(employeeReader())
                                  .processor(employeeProcessor)
-                                 .writer(employeeDbWriter())
+                                 .writer(employeeDBWriter)
                                  .build();
     }
 
@@ -85,15 +84,6 @@ public class JobConfiguration {
             }
         });
         return reader;
-    }
-
-    @Bean
-    public JdbcBatchItemWriter<Employee> employeeDbWriter() {
-        JdbcBatchItemWriter<Employee> itemWriter = new JdbcBatchItemWriter<Employee>();
-        itemWriter.setDataSource(dataSource);
-        itemWriter.setSql("insert into employee (employee_id, first_name, last_name, email, age) values (:employeeId, :firstName, :lastName, :email, :age)");
-        itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<Employee>());
-        return itemWriter;
     }
 
     @Bean

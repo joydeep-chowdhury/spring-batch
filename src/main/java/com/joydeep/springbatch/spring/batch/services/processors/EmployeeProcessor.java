@@ -7,20 +7,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Service;
 
+import java.util.Random;
+
 @Service
 public class EmployeeProcessor implements ItemProcessor<EmployeeDTO, Employee> {
 
-    private static final Logger logger= LoggerFactory.getLogger(EmployeeProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeProcessor.class);
 
     @Override
     public Employee process(EmployeeDTO employeeDTO) throws Exception {
         Employee employee = new Employee();
-        employee.setEmployeeId(employeeDTO.getEmployeeId());
+        employee.setEmployeeId(employeeDTO.getEmployeeId() + new Random().nextInt(10000000) + new Random().nextInt(10000000));
         employee.setFirstName(employeeDTO.getFirstName());
         employee.setLastName(employeeDTO.getLastName());
         employee.setEmail(employeeDTO.getEmail());
         employee.setAge(employeeDTO.getAge());
-        logger.info("Processing employee {}",employee);
+        logger.info("Processing employee {}", employee);
         return employee;
     }
 }

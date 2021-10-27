@@ -23,6 +23,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 
 import javax.sql.DataSource;
 
@@ -59,6 +61,7 @@ public class JobConfiguration {
                                  .reader(employeeReader())
                                  .processor(employeeProcessor)
                                  .writer(employeeDbWriter())
+                                 .taskExecutor(taskExecutor())
                                  .build();
     }
 
@@ -101,5 +104,13 @@ public class JobConfiguration {
         SimpleJobLauncher simpleJobLauncher = new SimpleJobLauncher();
         simpleJobLauncher.setJobRepository(jobRepository);
         return simpleJobLauncher;
+    }
+
+    @Bean
+    public TaskExecutor taskExecutor() {
+        SimpleAsyncTaskExecutor simpleAsyncTaskExecutor = new SimpleAsyncTaskExecutor();
+        simpleAsyncTaskExecutor.setConcurrencyLimit(5);
+
+        return simpleAsyncTaskExecutor;
     }
 }

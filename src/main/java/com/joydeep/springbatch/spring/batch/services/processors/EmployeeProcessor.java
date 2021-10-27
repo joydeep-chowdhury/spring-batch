@@ -8,29 +8,29 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EmployeeProcessor implements ItemProcessor<EmployeeDTO, Employee> {
+public class EmployeeProcessor implements ItemProcessor<Employee, EmployeeDTO> {
 
-    private static final Logger logger= LoggerFactory.getLogger(EmployeeProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeProcessor.class);
 
     @Override
-    public Employee process(EmployeeDTO employeeDTO) throws Exception {
-        if(!isValid(employeeDTO)){
-            logger.error("Invalid employee very old {}",employeeDTO);
+    public EmployeeDTO process(Employee employee) throws Exception {
+        if (!isValid(employee)) {
+            logger.error("Invalid employee very old {}", employee);
 
             return null;
         }
 
-        Employee employee = new Employee();
-        employee.setEmployeeId(employeeDTO.getEmployeeId());
-        employee.setFirstName(employeeDTO.getFirstName());
-        employee.setLastName(employeeDTO.getLastName());
-        employee.setEmail(employeeDTO.getEmail());
-        employee.setAge(employeeDTO.getAge());
-        logger.info("Processing employee {}",employee);
-        return employee;
+        EmployeeDTO employeeDTO = new EmployeeDTO();
+        employeeDTO.setEmployeeId(employee.getEmployeeId());
+        employeeDTO.setFirstName(employee.getFirstName());
+        employeeDTO.setLastName(employee.getLastName());
+        employeeDTO.setEmail(employee.getEmail());
+        employeeDTO.setAge(employee.getAge() + 10);
+        System.out.println("inside processor " + employee.toString());
+        return employeeDTO;
     }
 
-    private boolean isValid(EmployeeDTO employeeDTO){
-        return !(employeeDTO.getAge()>60);
+    private boolean isValid(Employee employee) {
+        return !(employee.getAge() > 60);
     }
 }
